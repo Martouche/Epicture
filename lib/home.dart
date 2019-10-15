@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 import 'package:epicture/dashboard.dart';
-import 'feed.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Home extends StatefulWidget {
@@ -50,7 +49,6 @@ class _HomeState extends State<Home> {
             prefs.setString('account_username', uri.queryParameters['account_username']);
             prefs.setString('account_id', uri.queryParameters['account_id']);
             flutterWebviewPlugin.close();
-            //Navigator.pushNamed(context, '/dashboard');
             setState(() {
               this.isLoggedIn = true;
             });

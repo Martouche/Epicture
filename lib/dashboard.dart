@@ -16,13 +16,28 @@ class _DashboardState extends State<Dashboard> {
   User user;
   bool isLoad = false;
   bool pictureLoad = false;
+  bool feedLoad = false;
   int _selectedIndex = 0;
+  Picture feed;
   Picture picture;
 
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
     });
+  }
+
+  Future<Picture> getFeed() async {
+    final String feedUrl = 'https://api.imgur.com/3/gallery/hot/viral/day/1';
+
+    final feedResponse = await http.get(
+      feedUrl
+    );
+    if (feedResponse.statusCode == 200) {
+      return Picture.fromJson(json.decode(feedResponse.body));
+    } else {
+      return null;
+    }
   }
 
   Future<User> getUser() async {
@@ -89,26 +104,48 @@ class _DashboardState extends State<Dashboard> {
     });
   }
 
-  Widget buildPicture() {
-    return ListView.builder(
-      itemBuilder: (context, index) {
-        return Column(
-          children: <Widget>[
-            Text(picture.pictureList[index].link)
-          ],
-        );
-      },
+  void receiveFeed() async {
+    getFeed().then((Picture feed) {
+      if (feed == null) {
+        // Error
+      }
+      setState(() {
+        this.feed = feed;
+      });
+    });
+  }
+
+  Widget buildPicture(BuildContext context) {
+    return SizedBox(
+      height: MediaQuery.of(context).size.height - 300,
+      width: MediaQuery.of(context).size.width,
+      child: ListView.builder(
+        itemCount: picture.pictureList.length,
+        itemBuilder: (context, index) {
+            return new Image.network(picture.pictureList[index].link);
+        },
+      ),
+    );
+  }
+
+  Widget home(BuildContext context) {
+    return SafeArea(
+      child: Scaffold(
+        body: SizedBox(
+          height: MediaQuery.of(context).size.height,
+          width: MediaQuery.of(context).size.width,
+          child: ListView.builder(
+            itemCount: feed.pictureList.length,
+            itemBuilder: (context, index) {
+              return new Image.network(feed.pictureList[index].link);
+            },
+          ),
+        ),
+      ),
     );
   }
 
   Widget profile(BuildContext context) {
-    if (isLoad == false || this.user == null) {
-      return Scaffold(
-          body: Center(
-            child: CircularProgressIndicator(),
-          )
-      );
-    }
     return SafeArea(
         child: Scaffold(
           body: Center(
@@ -126,9 +163,7 @@ class _DashboardState extends State<Dashboard> {
                   alignment: Alignment.topCenter,
                   child: Divider(thickness: 1,),
                 ),
-                Container(
-                  child: Image.network(picture.pictureList[1].link),
-                ),
+                buildPicture(context),
               ],
           ),
         ),
@@ -142,11 +177,12 @@ class _DashboardState extends State<Dashboard> {
     getValues();
     getData();
     receivePicture();
+    receiveFeed();
   }
 
   @override
   Widget build(BuildContext context) {
-    if (isLoad == false || this.user == null) {
+    if (isLoad == false || this.user == null || this.picture == null || this.feed == null) {
       return Scaffold(
         body: Center(
           child: CircularProgressIndicator(),
@@ -154,9 +190,7 @@ class _DashboardState extends State<Dashboard> {
       );
     }
     List<Widget> listArray = [
-      Text(
-          'Index 0: Home'
-      ),
+      home(context),
       profile(context),
     ];
     return Scaffold(
