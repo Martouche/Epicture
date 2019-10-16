@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'user.dart';
 import 'package:flutter/material.dart';
 import 'picture.dart';
+import 'package:floating_search_bar/floating_search_bar.dart';
 
 class Dashboard extends StatefulWidget {
   @override
@@ -19,7 +20,7 @@ class _DashboardState extends State<Dashboard> {
   bool feedLoad = false;
   int _selectedIndex = 0;
   Picture feed;
-  Picture picture;
+  Profile picture;
 
   void _onItemTapped(int index) {
     setState(() {
@@ -29,9 +30,10 @@ class _DashboardState extends State<Dashboard> {
 
   Future<Picture> getFeed() async {
     final String feedUrl = 'https://api.imgur.com/3/gallery/hot/viral/day/1';
+    final String feedHeader = 'Client-ID' + ' 011ada7e4889a21';
 
     final feedResponse = await http.get(
-      feedUrl
+      feedUrl, headers: {HttpHeaders.authorizationHeader: feedHeader}
     );
     if (feedResponse.statusCode == 200) {
       return Picture.fromJson(json.decode(feedResponse.body));
@@ -55,7 +57,7 @@ class _DashboardState extends State<Dashboard> {
     }
   }
 
-  Future<Picture> getPicture() async {
+  Future<Profile> getPicture() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final String pictureUrl = 'https://api.imgur.com/3/account/me/images';
     final String pictureHeader = 'Bearer ' + prefs.getString('access_token');
@@ -64,7 +66,7 @@ class _DashboardState extends State<Dashboard> {
       pictureUrl, headers: {HttpHeaders.authorizationHeader: pictureHeader}
     );
     if (pictureResponse.statusCode == 200) {
-      return Picture.fromJson(json.decode(pictureResponse.body));
+      return Profile.fromJson(json.decode(pictureResponse.body));
     } else {
       return null;
     }
@@ -94,7 +96,7 @@ class _DashboardState extends State<Dashboard> {
   }
   
   void receivePicture() async {
-    getPicture().then((Picture picture) {
+    getPicture().then((Profile picture) {
       if (picture == null) {
         // Error
       }
@@ -128,6 +130,30 @@ class _DashboardState extends State<Dashboard> {
     );
   }
 
+  Widget search(BuildContext context) {
+    return Scaffold(
+      body: FloatingSearchBar.builder(
+        itemCount: feed.pictureList.length,
+        itemBuilder: (BuildContext context, int index) {
+          if (feed.pictureList[index].photoList != null && feed.pictureList[index].photoList[0].type != 'video/mp4') {
+            return new Image.network(
+                feed.pictureList[index].photoList[0].link);
+          } else {
+            return new Container();
+          }
+        },
+        trailing: CircleAvatar(
+          child: Text('RD'),
+        ),
+        onChanged: (String value) {},
+        onTap: () {},
+        decoration: InputDecoration.collapsed(
+          hintText: "Search...",
+        ),
+      ),
+    );
+  }
+
   Widget home(BuildContext context) {
     return SafeArea(
       child: Scaffold(
@@ -137,7 +163,12 @@ class _DashboardState extends State<Dashboard> {
           child: ListView.builder(
             itemCount: feed.pictureList.length,
             itemBuilder: (context, index) {
-              return new Image.network(feed.pictureList[index].link);
+              if (feed.pictureList[index].photoList != null && feed.pictureList[index].photoList[0].type != 'video/mp4') {
+                return new Image.network(
+                    feed.pictureList[index].photoList[0].link);
+              } else {
+                return new Container();
+              }
             },
           ),
         ),
@@ -191,6 +222,7 @@ class _DashboardState extends State<Dashboard> {
     }
     List<Widget> listArray = [
       home(context),
+      search(context),
       profile(context),
     ];
     return Scaffold(
@@ -202,6 +234,10 @@ class _DashboardState extends State<Dashboard> {
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
             title: Text('Home'),
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.search),
+            title: Text('Search'),
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.portrait),

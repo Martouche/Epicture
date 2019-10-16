@@ -65,6 +65,7 @@ class _HomeState extends State<Home> {
     } else {
       return new WebviewScaffold(
         url: this.loginUrl,
+        appCacheEnabled: true,
         appBar: AppBar(
           title: Text('Epicture'),
           backgroundColor: Colors.black,
