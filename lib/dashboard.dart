@@ -242,6 +242,10 @@ class _DashboardState extends State<Dashboard> {
   Widget home(BuildContext context) {
     return SafeArea(
       child: Scaffold(
+        appBar: AppBar(
+          title: Text('Epicture'),
+          backgroundColor: Colors.grey[900],
+        ),
         body: SizedBox(
           height: MediaQuery.of(context).size.height,
           width: MediaQuery.of(context).size.width,
@@ -282,6 +286,10 @@ class _DashboardState extends State<Dashboard> {
   Widget profile(BuildContext context) {
     return SafeArea(
       child: Scaffold(
+        appBar: AppBar(
+          title: Text(user.url),
+          backgroundColor: Colors.grey[900],
+        ),
         backgroundColor: Colors.black,
         body: Center(
           child: Column(
