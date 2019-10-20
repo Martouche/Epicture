@@ -180,13 +180,17 @@ class _DashboardState extends State<Dashboard> {
       child: Scaffold(
         backgroundColor: Colors.black,
         appBar: AppBar(
-          backgroundColor: Colors.grey,
+          backgroundColor: Colors.grey[900],
           title: TextFormField(
             controller: myController,
+            style: TextStyle(color: Colors.white),
             decoration: InputDecoration(
-                border: UnderlineInputBorder(),
-                labelText: 'Search',
-                labelStyle: TextStyle(color: Colors.white)),
+              border: UnderlineInputBorder(),
+              labelText: 'Search',
+              labelStyle: TextStyle(
+                color: Colors.white,
+              ),
+            ),
           ),
           actions: <Widget>[
             IconButton(
@@ -361,7 +365,7 @@ class _DashboardState extends State<Dashboard> {
         selectedItemColor: Colors.white,
         onTap: _onItemTapped,
         unselectedItemColor: Colors.grey,
-        backgroundColor: Colors.black87,
+        backgroundColor: Colors.grey[900],
       ),
     );
   }
